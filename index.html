@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0c0c0e" />
+  <title>Aesthetic Lens — Filter foto profesional di browser</title>
+  <meta name="description" content="Editor foto WebGL: filter Cinematic, Pro-Tone, Aesthetic, plus tekstur grain dan dust." />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="modulepreload" href="js/app.js" />
+</head>
+<body>
+  <div class="app" id="app" data-state="empty">
+
+    <!-- ───── Top bar ───── -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">Aesthetic Lens</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn ghost hide-sm" data-action="reset" type="button" disabled>Reset</button>
+        <button class="btn ghost" id="btnCompare" type="button" disabled title="Tahan untuk melihat foto asli">Tahan: Asli</button>
+        <button class="btn primary" id="btnExport" type="button" disabled>Simpan</button>
+      </div>
+    </header>
+
+    <!-- ───── Stage: kanvas Fabric.js ───── -->
+    <main class="stage" id="stage">
+      <div class="stage-inner" id="stageInner">
+        <canvas id="stageCanvas"></canvas>
+      </div>
+
+      <div class="empty" id="emptyState">
+        <div class="empty-card">
+          <div class="aperture" aria-hidden="true"></div>
+          <h1>Foto instan, hasil sinematik.</h1>
+          <p>Ambil foto atau unggah dari galeri. Semua diproses di perangkatmu — tanpa upload ke server.</p>
+          <div class="empty-actions">
+            <button class="btn primary lg" type="button" data-action="upload" disabled>Unggah foto</button>
+            <button class="btn ghost lg" type="button" data-action="camera" disabled>Buka kamera</button>
+          </div>
+          <p class="drop-hint">atau seret foto ke sini</p>
+        </div>
+      </div>
+
+      <div class="error" id="errorState">
+        <p id="errorText">Terjadi kesalahan.</p>
+      </div>
+
+      <div class="busy" id="busy" hidden role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="busyText">Memproses…</span>
+      </div>
+    </main>
+
+    <!-- ───── Panel kontrol ───── -->
+    <section class="panel" aria-label="Kontrol">
+      <div class="field">
+        <div class="field-head">
+          <label for="rngIntensity">Intensitas filter</label>
+          <output id="outIntensity" for="rngIntensity">85%</output>
+        </div>
+        <input id="rngIntensity" type="range" min="0" max="100" step="1" value="85" />
+      </div>
+
+      <div class="seg" id="tabs" role="tablist" aria-label="Bagian kontrol">
+        <button type="button" role="tab" aria-selected="true" data-tab="filter">Filter</button>
+        <button type="button" role="tab" aria-selected="false" data-tab="texture">Tekstur</button>
+        <button type="button" role="tab" aria-selected="false" data-tab="photo">Foto</button>
+      </div>
+
+      <div class="tabpanel" data-panel="filter">
+        <div class="seg seg-sm" id="catTabs" role="group" aria-label="Kategori filter"></div>
+        <div class="chips" id="chips"></div>
+        <p class="hint" id="presetDesc"></p>
+      </div>
+
+      <div class="tabpanel" data-panel="texture" hidden>
+        <div class="field">
+          <div class="field-head"><label for="rngGrain">Grain</label><output id="outGrain" for="rngGrain">0%</output></div>
+          <input id="rngGrain" type="range" min="0" max="100" step="1" value="0" />
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="rngGrainSize">Ukuran grain</label><output id="outGrainSize" for="rngGrainSize">1.5 px</output></div>
+          <input id="rngGrainSize" type="range" min="10" max="40" step="1" value="15" />
+        </div>
+        <div class="field">
+          <div class="field-head"><label for="rngDust">Dust &amp; goresan</label><output id="outDust" for="rngDust">0%</output></div>
+          <input id="rngDust" type="range" min="0" max="100" step="1" value="0" />
+        </div>
+        <button class="btn ghost" id="btnShuffle" type="button">Acak pola tekstur</button>
+      </div>
+
+      <div class="tabpanel" data-panel="photo" hidden>
+        <div class="stack">
+          <button class="btn ghost lg" type="button" data-action="upload" disabled>Unggah foto baru</button>
+          <button class="btn ghost lg" type="button" data-action="camera" disabled>Ambil dengan kamera</button>
+          <button class="btn ghost lg" type="button" data-action="reset" disabled>Reset semua pengaturan</button>
+        </div>
+        <p class="hint">Foto dikecilkan otomatis hingga sisi terpanjang 2048&nbsp;px agar proses tetap cepat; hasil simpan memakai resolusi yang sama.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ───── Kamera ───── -->
+  <dialog id="cameraDialog" class="cam" aria-label="Kamera">
+    <div class="cam-view"><video id="camVideo" playsinline muted autoplay></video></div>
+    <div class="cam-bar">
+      <button class="btn ghost" id="camClose" type="button">Tutup</button>
+      <button class="shutter" id="camShutter" type="button" aria-label="Ambil foto"></button>
+      <button class="btn ghost" id="camFlip" type="button">Balik</button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <input type="file" id="fileInput" accept="image/*" hidden />
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden />
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
